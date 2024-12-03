@@ -83,8 +83,7 @@ def many(parser):
 
     return p
 
-
-def sequence(parsers):
+def sequence(parsers,drop=[],unwrap=False):
     def p(input):
         res = []
         for parser in parsers:
@@ -92,17 +91,22 @@ def sequence(parsers):
                 res.append(parser(input))
             except:
                 raise Exception("sequence failed")
+        if drop: res=[x for idx,x in enumerate(res) if idx not in drop]
+        if unwrap: res = res[0]
         return res
 
     return p
 
-
-def mapper(parser, func):
+def mapper(parser, funcs):
     def p(input):
-        return func(parser(input))
+        res = parser(input)
+        for f in funcs:
+            res = f(res)
+        return res
 
     return p
 
+def drop(idxs): return lambda ls: [x for idx,x in enumerate(ls) if idx not in idxs]
 
 def accumulator(parser, acc):
     def p(input):
@@ -119,11 +123,11 @@ def accumulator(parser, acc):
 
 
 def digits():
-    return mapper(sequence([digit(), many(digit())]), lambda x: "".join([x[0]] + x[1]))
+    return mapper(sequence([digit(), many(digit())]), [lambda x: "".join([x[0]] + x[1])])
 
 
 def integer():
-    return mapper(digits(), lambda x: int(x))
+    return mapper(digits(), [lambda x: int(x)])
 
 
 def ws():

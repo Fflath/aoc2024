@@ -1,6 +1,5 @@
 from parser import *
 
-
 with open("d1.txt", "r") as f:
     inp = f.read()
 
@@ -35,7 +34,7 @@ class p2_accumulator():
 
 
 def line():
-    return mapper(sequence([integer(), ws(), integer(), nl()]), lambda x: (x[0], x[2]))
+    return sequence([integer(), ws(), integer(), nl()],[1,3])
 
 
 def file(acc): 
