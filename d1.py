@@ -4,51 +4,60 @@ from parser import *
 with open("d1.txt", "r") as f:
     inp = f.read()
 
-
 input = Parser(inp)
 
+class p1_accumulator():
+    def __init__(self):
+        self.l = []
+        self.r = []
 
-def mappend(acc, addition):
-    for idx, _ in enumerate(acc):
-        acc[idx].append(addition[idx])
+    def add(self,row):
+        self.l.append(row[0])
+        self.r.append(row[1])
 
+    def __iter__(self):
+        for idx,lx in enumerate(self.l):
+            yield lx,self.r[idx]
 
-def acc2(acc, addition):
-    print(acc)
-    print(addition)
-    ls = acc[0], ds = acc[1]
-    ds[addition[1]] = ds.get(addition, 0) + 1
-    ls.append(addition[0])
-    print(acc)
-    print("-------------")
+class p2_accumulator():
+    def __init__(self):
+        self.l = []
+        self.r = {}
+
+    def add(self,row):
+        self.l.append(row[0])
+        self.r[row[1]] = self.r.get(row[1],0) + 1
+
+    def __iter__(self):
+        for idx,lx in enumerate(self.l):
+            yield lx,self.r.get(lx,0)
+
 
 
 def line():
     return mapper(sequence([integer(), ws(), integer(), nl()]), lambda x: (x[0], x[2]))
 
 
-def file(acc):
-    accumulator(line(), lambda res, acc: mappend(acc, res), acc)(input)
-    return acc
-
-
-def f2(acc):
-    accumulator(line(), lambda res, acc: acc2(acc, res), acc)(input)
-    return acc
+def file(acc): 
+    input.r()
+    accumulator(line(), acc)(input)
 
 
 def p1():
-    f, s = file([[], []])
-    f.sort(), s.sort()
+    acc = p1_accumulator()
+    file(acc)
+    acc.l.sort()
+    acc.r.sort()
     sum = 0
-    for idx, _ in enumerate(f):
-        sum += abs(f[idx] - s[idx])
+    for lx,rx in iter(acc):
+        sum += abs(lx-rx)
     return sum
 
 
 def p2():
-    ls, ds = f2([[], {}])
+    acc = p2_accumulator()
+    file(acc)
     sum = 0
-    for _, x in enumerate(ls):
-        sum += x * ds.get(x, 0)
+    for l,r in iter(acc):
+        sum += l * r
     return sum

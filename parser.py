@@ -104,16 +104,16 @@ def mapper(parser, func):
     return p
 
 
-def accumulator(parser, func, acc):
+def accumulator(parser, acc):
     def p(input):
         while True:
             h = input.head
             try:
-                func(parser(input), acc)
+                acc.add(parser(input))
             except:
                 input.head = h
                 break
-        return acc
+        # return acc
 
     return p
 
