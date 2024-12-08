@@ -1,3 +1,7 @@
+from collections import namedtuple
+
+R = namedtuple('R',['success', 'value','err'])
+
 class Parser:
     def __init__(self, input):
         self.input = input
@@ -16,19 +20,16 @@ class Parser:
         self.head = 0
 
 
-def run():
-    input = Parser("123    456\n456    123\n")
-    print(parse(input))
-
-
-def parse(input):
-    parser = digit()
-    return parser(input)
+test = Parser("123abc")
 
 
 def char():
     def p(input):
-        return input.next()
+        try:
+            n = input.next()
+            return True, [n], ''
+        except:
+            return False,[],'end of input'
 
     return p
 
@@ -36,73 +37,64 @@ def char():
 def satisfy(parser, acceptor):
     def p(input):
         head = input.head
-        res = parser(input)
-        if acceptor(res):
-            return res
+        s,v,e = parser(input)
+        if s:
+            if acceptor(v): return True,v,''
+            else: 
+                input.head = head
+                return False,[],f'satiosfy failed {acceptor}'
         else:
-            input.head = head
-            raise Exception("rejected by satisfy")
+            return s,v,e
 
     return p
 
 
 def digit():
-    return satisfy(char(), lambda x: x in "0123456789")
+    return satisfy(char(), lambda x: x[0] in "0123456789")
 
 
 def ascii_letter():
     return satisfy(
-        char(), lambda x: x in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        char(), lambda x: x[0] in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     )
-
-
-def choice(parsers):
-    def p(input):
-        head = input.head
-        for parser in parsers:
-            try:
-                return parser(input)
-            except:
-                input.head = head
-        raise Exception("rejected by choice")
-
-    return p
-
 
 def many(parser):
     def p(input):
         res = []
         while True:
             head = input.head
-            try:
-                res.append(parser(input))
-            except:
+            s,v,e = parser(input)
+            if s: res.append(v)
+            else: 
                 input.head = head
                 break
-        return res
+        return True,res,''
 
     return p
 
-def sequence(parsers,drop=[],unwrap=False):
+def sequence(parsers):
     def p(input):
+        head =input.head
         res = []
         for parser in parsers:
-            try:
-                res.append(parser(input))
-            except:
-                raise Exception("sequence failed")
-        if drop: res=[x for idx,x in enumerate(res) if idx not in drop]
-        if unwrap: res = res[0]
-        return res
-
+            s,v,r = parser(input)
+            if s: res.append(v)
+            else: 
+                input.head=head
+                return False,'',f"sequence failed at parser {parser}"
+        return True,res,''
+    
     return p
 
 def mapper(parser, funcs):
     def p(input):
-        res = parser(input)
-        for f in funcs:
-            res = f(res)
-        return res
+        s,v,e = parser(input)
+        if s:
+            for f in funcs:
+                v = f(v)
+            return True,v,''
+        else: 
+            return s,v,e
 
     return p
 
@@ -123,7 +115,7 @@ def accumulator(parser, acc):
 
 
 def digits():
-    return mapper(sequence([digit(), many(digit())]), [lambda x: "".join([x[0]] + x[1])])
+    return mapper(sequence([digit(), many(digit())]), [lambda x: "".join(x[0] + x[1])])
 
 
 def integer():
