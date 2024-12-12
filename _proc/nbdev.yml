@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "aoc2024"
+  site-url: "https://Fflath.github.io/aoc2024"
+  description: "advent of code 2024"
+  repo-branch: main
+  repo-url: "https://github.com/Fflath/aoc2024"
