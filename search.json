@@ -1,0 +1,92 @@
+[
+  {
+    "objectID": "02_day2.html",
+    "href": "02_day2.html",
+    "title": "aoc2024",
+    "section": "",
+    "text": "from aoc2024.core import *\nimport copy\n\n\nwith open(\"../data/d2.txt\", \"r\") as f:\n    inp = f.read()\n\ndata = Parser(inp)\n\n\ndef line():\n    return mapper(sequence([\n        many(sequence([integer(),ws_()])),nl_()]),[lambda x: [xs[0] for xs in x[0]]])\n\n\ndata.r()\nline()(data)\n\n(True,[44, 47, 48, 49, 48],)\n\n\n\ndef check_inc(ls):\n    l,r=0,1\n    while r &lt; len(ls):\n        d = ls[r]-ls[l]\n        if (d &lt; 1) or (d &gt; 3): return False\n        r+=1\n        l+=1\n    return True\n    \ndef check_dec(ls):\n    l,r=0,1\n    while r &lt; len(ls):\n        d = ls[l]-ls[r]\n        if (d &lt; 1) or (d &gt; 3): return False\n        r+=1\n        l+=1\n    return True\n\n\ndef check2_inc(ls):\n    l,r=0,1\n    while r &lt; len(ls):\n        d = ls[r]-ls[l]\n        if (d &lt; 1) or (d &gt; 3): \n            trash1 = copy.deepcopy(ls)\n            trash2 = copy.deepcopy(ls)\n            trash1.pop(l)\n            trash2.pop(r)\n            return check_inc(trash1) or check_dec(trash1) or check_inc(trash2) or check_dec(trash2)\n        r+=1\n        l+=1\n    return True\n    \ndef check2_dec(ls):\n    l,r=0,1\n    while r &lt; len(ls):\n        d = ls[l]-ls[r]\n        if (d &lt; 1) or (d &gt; 3): \n            trash1 = copy.deepcopy(ls)\n            trash2 = copy.deepcopy(ls)\n            trash1.pop(l)\n            trash2.pop(r)\n            return check_inc(trash1) or check_dec(trash1) or check_inc(trash2) or check_dec(trash2)\n        r+=1\n        l+=1\n    return True\n\n\ndata.r()\nres = many(line())(data)\nlen([x for x in res.v if check_inc(x) or check_dec(x)])\n\n432\n\n\n\ndata.r()\nres = many(line())(data)\nlen([x for x in res.v if check2_inc(x) or check2_dec(x)])\n\n488",
+    "crumbs": [
+      "02_day2.html"
+    ]
+  },
+  {
+    "objectID": "00_parser.html",
+    "href": "00_parser.html",
+    "title": "aoc2024",
+    "section": "",
+    "text": "source\n\nParser\n\n Parser (input)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nParser(\"asdf\")\n\n|asdf\n\n\n\nsource\n\n\nPRV\n\n PRV (v='', s=True, e='')\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nchar\n\n char ()\n\n\nsource\n\n\nnchar\n\n nchar (n)\n\n\nassert nchar(3)(Parser(\"abcdef\")) == PRV(\"abc\")\n\nTrue\n\n\n\nassert char()(Parser(\"1\")) == PRV('1')\n\n\nsource\n\n\nsatisfy\n\n satisfy (parser, acceptor)\n\n\nsource\n\n\nascii_letter\n\n ascii_letter ()\n\n\nsource\n\n\ndigit\n\n digit ()\n\n\nassert digit()(Parser(\"1\")) == PRV('1')\nassert digit()(Parser(\"a\")) == PRV(s=False,e='satisfy failed')\n\n\nassert ascii_letter()(Parser(\"1\")) == PRV(s=False,e='satisfy failed')\nassert ascii_letter()(Parser(\"a\")) == PRV('a')\n\n\nsource\n\n\nmany\n\n many (parser)\n\n\nassert many(digit())(Parser(\"123abc\")) == PRV(['1','2','3'])\nassert many(digit())(Parser(\"abc\")) == PRV([])\n\n\nsource\n\n\nsequence\n\n sequence (parsers)\n\n\nassert sequence([digit(),digit(),digit()])(Parser(\"123\")) == PRV(['1','2','3'])\nassert sequence([digit(),ascii_letter(),digit()])(Parser(\"1a3\")) == PRV(['1','a','3'])\n\n\nsource\n\n\nmapper\n\n mapper (parser, funcs)\n\n\nsource\n\n\naccumulator\n\n accumulator (parser, acc)\n\n\nsource\n\n\ndigits\n\n digits ()\n\n\nassert digits()(Parser(\"1\")) == PRV('1')\nassert digits()(Parser(\"123\")) == PRV('123')\nassert digits()(Parser(\"abc\")) == PRV(s=False,e='sequence failed')\n\n\nsource\n\n\ninteger\n\n integer ()\n\n\nassert integer()(Parser(\"123\")) == PRV(123)\n\n\nsource\n\n\nws_\n\n ws_ ()\n\n\nsource\n\n\nws\n\n ws ()\n\n\nsource\n\n\nchoice\n\n choice (parsers)\n\n\nassert choice([digit(),ascii_letter()])(Parser(\"1\")) == PRV(\"1\")\n\n\nassert choice([digit(),ascii_letter()])(Parser(\"a\")) == PRV(\"a\")\n\n\nsource\n\n\nnl_\n\n nl_ ()\n\n\nsource\n\n\nnl\n\n nl ()\n\n\nsource\n\n\nfind\n\n find (parser)\n\n\nassert find(digit())(Parser(\"asdcc1\")) == PRV(\"1\")\n\n\nsource\n\n\ndrop\n\n drop (parser)",
+    "crumbs": [
+      "00_parser.html"
+    ]
+  },
+  {
+    "objectID": "03_day3.html",
+    "href": "03_day3.html",
+    "title": "aoc2024",
+    "section": "",
+    "text": "The autoreload extension is already loaded. To reload it, use:\n  %reload_ext autoreload\n\n\n\n\nfrom aoc2024.core import *\n\n\nwith open(\"../data/d3.txt\", \"r\") as f:\n    inp = f.read()\n\ndata = Parser(inp)\n\n\ndef d3(): return mapper(choice([\n    sequence([digit(),digit(),digit()]),\n    sequence([digit(),digit()]),\n    sequence([digit()])]),[lambda x: int(\"\".join(x))])\n\n\ndef mul(): return sequence([\n    drop(satisfy(nchar(4),lambda x: x==\"mul(\")),\n    d3(),\n    drop(satisfy(char(),lambda x: x==\",\")),\n    d3(),\n    drop(satisfy(char(),lambda x: x==\")\"))\n    ])\n\n\nmul()(Parser('mul(32,4)'))\n\n(True,[32, 4],)\n\n\n\nsatisfy(nchar(3),lambda x: x==\"mul\")(Parser(\"multiple\"))\n\n(True,mul,)\n\n\n\ndata.r()\nr = many(find(mul()))(data)\nsum(map(lambda x: x[0]*x[1],r.v))\n\n171183089\n\n\n\ndef tok_do(): return mapper(satisfy(nchar(4),lambda x: x == \"do()\"),[lambda x: Do()])\ndef tok_dont(): return mapper(satisfy(nchar(7), lambda x: x == \"don't()\"),[lambda x: Dont()])\ndef tok_mul(): return mapper(mul(),[lambda x: Mul(x[0],x[1])])\n\n\nclass d3_acc():\n    def __init__(self):\n        self.enabled=True\n        self.v = 0\n\n    def add(self,token): token.update(self)\n\nclass Do(): \n    def update(self,acc): acc.enabled=True\n    def __repr__(self): return \"DO\"\n\nclass Dont():\n    def update(self,acc): acc.enabled=False\n    def __repr__(self): return \"DONT\"\n\nclass Mul:\n    def __init__(self,x,y):\n        self.v = x * y\n\n    def update(self,acc):\n        if acc.enabled: acc.v += self.v\n\n    def __repr__(self): return f\"MUL({self.v})\"\n\n\ndef token(): return choice([tok_dont(),tok_do(),tok_mul()])\n\n\nmany(find(token()))(Parser(\"do()don't()mul(34,56)\"))\n\n(True,[DO, DONT, MUL(1904)],)\n\n\n\ndata.r()\nmapper(accumulator(find(token()),d3_acc()),[lambda x: x.v])(data)\n\n(True,63866497,)",
+    "crumbs": [
+      "03_day3.html"
+    ]
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
+    "section": "",
+    "text": "foo\n\n foo ()",
+    "crumbs": [
+      "core"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "aoc2024",
+    "section": "",
+    "text": "This file will become your README and also the index of your documentation.",
+    "crumbs": [
+      "aoc2024"
+    ]
+  },
+  {
+    "objectID": "index.html#developer-guide",
+    "href": "index.html#developer-guide",
+    "title": "aoc2024",
+    "section": "Developer Guide",
+    "text": "Developer Guide\nIf you are new to using nbdev here are some useful pointers to get you started.\n\nInstall aoc2024 in Development mode\n# make sure aoc2024 package is installed in development mode\n$ pip install -e .\n\n# make changes under nbs/ directory\n# ...\n\n# compile to have changes apply to aoc2024\n$ nbdev_prepare",
+    "crumbs": [
+      "aoc2024"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "aoc2024",
+    "section": "Usage",
+    "text": "Usage\n\nInstallation\nInstall latest from the GitHub repository:\n$ pip install git+https://github.com/Fflath/aoc2024.git\nor from conda\n$ conda install -c Fflath aoc2024\nor from pypi\n$ pip install aoc2024\n\n\nDocumentation\nDocumentation can be found hosted on this GitHub repository’s pages. Additionally you can find package manager specific guidelines on conda and pypi respectively.",
+    "crumbs": [
+      "aoc2024"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "aoc2024",
+    "section": "How to use",
+    "text": "How to use\nFill me in please! Don’t forget code examples:\n\n1+1\n\n2",
+    "crumbs": [
+      "aoc2024"
+    ]
+  },
+  {
+    "objectID": "01_day1.html",
+    "href": "01_day1.html",
+    "title": "aoc2024",
+    "section": "",
+    "text": "The autoreload extension is already loaded. To reload it, use:\n  %reload_ext autoreload\n\n\n\n\nfrom aoc2024.core import *\n\n\nwith open('../data/d1.txt','r') as f:\n    raw = f.read()\n\np = Parser(raw)\n\n\nclass part1_acc():\n    def __init__(self):\n        self.l,self.r = [],[]\n\n    def add(self,row):\n        self.l.append(row[0])\n        self.r.append(row[1])\n\n    def __iter__(self):\n        self.l.sort()\n        self.r.sort()\n        for idx,lx in enumerate(self.l):\n            yield abs(lx-self.r[idx])\n\n\ndef line(): return sequence([integer(),ws_(),integer(),nl_()])\n\n\np.r()\nacc = part1_acc()\naccumulator(line(),acc)(p)\nacc.l.sort()\nacc.r.sort()\nres = 0\nfor lx,rx in iter(acc):\n    res += abs(lx-rx)\nres\n\n2769675\n\n\n\np.r()\nacc = part1_acc()\nmapper(\n    accumulator(line(),acc),\n    [lambda x: sum(iter(acc),0)])(p)\n\n(True,2769675,)\n\n\n\nclass part2_acc():\n    def __init__(self):\n        self.l = []\n        self.r = {}\n\n    def add(self,row):\n        self.l.append(row[0])\n        self.r[row[1]] = self.r.get(row[1],0) + 1\n\n    def __iter__(self):\n        for idx,lx in enumerate(self.l):\n            yield lx*self.r.get(lx,0)\n\n\np.r()\nacc2 = part2_acc()\nmapper(\n    accumulator(line(),acc2),\n    [lambda x: sum(iter(acc2),0)])(p)\n\n(True,24643097,)",
+    "crumbs": [
+      "01_day1.html"
+    ]
+  }
+]
